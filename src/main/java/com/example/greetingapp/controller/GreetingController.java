@@ -1,25 +1,44 @@
 package com.example.greetingapp.controller;
 
 import com.example.greetingapp.entity.Greetings;
+import com.example.greetingapp.entity.User;
+import com.example.greetingapp.service.IGreetingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+
 
 @RestController
 public class GreetingController {
-    private static final String template = "Hello, %s!";
-    private final AtomicLong counter = new AtomicLong();
-    @GetMapping("/greeting")
-    public Greetings greetings(@RequestParam(value = "name",defaultValue = "world")String name){
-        return new Greetings(counter.incrementAndGet(),String.format(template,name));
+    @Autowired
+    private IGreetingService greetingService;
+
+    @PostMapping("/greeting")
+    public Greetings greeting(@RequestParam(value = "name", defaultValue = "world") String name) {
+        User user = new User();
+        user.setFirstName(name);
+        return greetingService.addGreeting(user);
     }
-    @PostMapping("/greetings/post")
-    public Greetings postGreetings(@RequestBody Greetings greetings){
-        return greetings;
+
+    @GetMapping("/greeting/{id}")
+    public Greetings getById(@PathVariable Long id){
+        return greetingService.getGreetingById(id);
     }
-    @PutMapping("/greetings/put/{id}")
-    public Greetings putGreetings(@PathVariable long id,@RequestParam(value = "name")String name){
-        return new Greetings(id,String.format(template,name));
+
+    @GetMapping("/greetings")
+    public List<Greetings> getAllGreetings(){
+        return greetingService.getAllGreetings();
+    }
+
+    @DeleteMapping("/greeting/{id}")
+    public Greetings deleteById(@PathVariable Long id){
+        return greetingService.deleteGreeting(id);
+    }
+
+    @PutMapping("/greeting/{id}")
+    public Greetings updateById(@PathVariable Long id, @RequestBody User user){
+        return greetingService.updateGreeting(id,user);
     }
 
 }
